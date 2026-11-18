@@ -1,0 +1,11 @@
+C:\Presonal\Hospital_Service\Service\bin\Debug\net9.0\Service.deps.json
+C:\Presonal\Hospital_Service\Service\bin\Debug\net9.0\Service.dll
+C:\Presonal\Hospital_Service\Service\bin\Debug\net9.0\Service.pdb
+C:\Presonal\Hospital_Service\Service\obj\Debug\net9.0\Service.GeneratedMSBuildEditorConfig.editorconfig
+C:\Presonal\Hospital_Service\Service\obj\Debug\net9.0\Service.AssemblyInfoInputs.cache
+C:\Presonal\Hospital_Service\Service\obj\Debug\net9.0\Service.AssemblyInfo.cs
+C:\Presonal\Hospital_Service\Service\obj\Debug\net9.0\Service.csproj.CoreCompileInputs.cache
+C:\Presonal\Hospital_Service\Service\obj\Debug\net9.0\Service.dll
+C:\Presonal\Hospital_Service\Service\obj\Debug\net9.0\refint\Service.dll
+C:\Presonal\Hospital_Service\Service\obj\Debug\net9.0\Service.pdb
+C:\Presonal\Hospital_Service\Service\obj\Debug\net9.0\ref\Service.dll
