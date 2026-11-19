@@ -491,6 +491,9 @@ public partial class HospitalDbContext : DbContext
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(255)
                 .HasColumnName("password_hash");
+            entity.Property(e => e.MustChangePassword)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("must_change_password");
             entity.Property(e => e.PhotoPath)
                 .HasMaxLength(300)
                 .HasColumnName("photo_path");

@@ -1,17 +1,18 @@
 ﻿
 using System;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text;
+using System.Threading.Tasks;
+using Entities.Models.Enum;
 using Hospital_Service.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace CommonLayer.SecurityHelper
@@ -24,6 +25,7 @@ namespace CommonLayer.SecurityHelper
         {
             _config = config;
         }
+
         public string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
@@ -33,29 +35,36 @@ namespace CommonLayer.SecurityHelper
         {
             return BCrypt.Net.BCrypt.Verify(password, passwordHash);
         }
-        public string GenerateJwtToken(User user)
+
+        public (string Token, DateTime ExpiresAtUtc) GenerateJwtToken(User user)
         {
-            // minimal JWT example
-            var claims = new[]
-             {
-                new Claim("UserId", user.Id.ToString()),  // custom claim
-               // new Claim(ClaimTypes.Email, user.Email),
-              //  new Claim(ClaimTypes.Role, user.Role)         // optional but useful
+            var claims = new List<Claim>
+            {
+                new Claim("UserId", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, ((UserRole)user.Role).ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+            if (user.Doctor != null) claims.Add(new Claim("DoctorId", user.Doctor.Id.ToString()));
+            if (user.PatientUser != null) claims.Add(new Claim("PatientId", user.PatientUser.Id.ToString()));
 
+            var keyText = _config["Jwt:Key"];
+            if (string.IsNullOrWhiteSpace(keyText) || keyText.Length < 32)
+                throw new InvalidOperationException("Jwt:Key must be at least 32 characters.");
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyText));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var minutes = int.TryParse(_config["Jwt:ExpiryMinutes"], out var m) ? m : 120;
+            var expiresAtUtc = DateTime.UtcNow.AddMinutes(minutes);
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(2),
+                expires: expiresAtUtc,
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return (new JwtSecurityTokenHandler().WriteToken(token), expiresAtUtc);
         }
     }
 

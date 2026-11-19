@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Entities.Models.Enum;
 
 namespace Hospital_Service.Models;
 
@@ -17,7 +18,8 @@ public partial class User
 
     public string PasswordHash { get; set; } = null!;
 
-    public byte Role { get; set; }
+    public bool MustChangePassword { get; set; }
+    public UserRole Role { get; set; }
 
     public string? PhotoPath { get; set; }
 

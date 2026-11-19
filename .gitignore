@@ -1,0 +1,74 @@
+# =========================================================
+# Hospital_Service - .gitignore (ASP.NET Core / .NET 9)
+# Place at repo root: C:\Presonal\Hospital_Service\.gitignore
+# =========================================================
+
+# ---------- Build output (all projects) ----------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ll]og/
+[Ll]ogs/
+publish/
+out/
+artifacts/
+
+# ---------- Visual Studio ----------
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.vspscc
+*.vssscc
+_ReSharper*/
+*.DotSettings.user
+
+# ---------- VS Code / Rider ----------
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.sln.iml
+
+# ---------- NuGet ----------
+*.nupkg
+*.snupkg
+packages/
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+
+# ---------- Test results / coverage ----------
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+coverage*.json
+coverage*.xml
+
+# ---------- Logs, temp, cache ----------
+*.log
+*.tmp
+*.cache
+*.pdb
+
+# ---------- Secrets and local settings (never commit) ----------
+appsettings.Development.json
+appsettings.Local.json
+*.env
+.env
+secrets.json
+
+# ---------- Uploaded files (photos, reports stored on server) ----------
+uploads/
+**/wwwroot/uploads/
+
+# ---------- OS files ----------
+.DS_Store
+Thumbs.db
+desktop.ini

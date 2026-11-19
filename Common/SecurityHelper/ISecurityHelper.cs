@@ -12,7 +12,7 @@ namespace CommonLayer.SecurityHelper
     {
         string HashPassword(string password);
         bool VerifyPassword(string password, string passwordHash);
-        string GenerateJwtToken(User user);
+        (string Token, DateTime ExpiresAtUtc) GenerateJwtToken(User user);
     }
 
 }

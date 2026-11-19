@@ -9,7 +9,7 @@ namespace CommonLayer.CommonResponse
     public class GeneralResponse<T>:BaseResponse
     {
        
-        public T Data { get; set; }
+        public T? Data { get; set; }
 
       
     }
