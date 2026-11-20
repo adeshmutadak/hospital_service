@@ -7,8 +7,6 @@ public partial class Doctor
 {
     public long Id { get; set; }
 
-    public long HospitalId { get; set; }
-
     public long UserId { get; set; }
 
     public long DepartmentId { get; set; }
@@ -24,7 +22,7 @@ public partial class Doctor
     public decimal? ConsultationFee { get; set; }
 
     public int SlotMinutes { get; set; }
-
+    public string? Code { get; set; }
     public bool IsDeleted { get; set; }
 
     public DateTime CreatedAt { get; set; }
@@ -32,7 +30,7 @@ public partial class Doctor
     public DateTime? UpdatedAt { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
-
+    public virtual ICollection<Patient> Patients { get; set; } = new List<Patient>();
     public virtual ICollection<AssistantAssignment> AssistantAssignments { get; set; } = new List<AssistantAssignment>();
 
     public virtual Department Department { get; set; } = null!;
@@ -40,8 +38,6 @@ public partial class Doctor
     public virtual ICollection<Department> Departments { get; set; } = new List<Department>();
 
     public virtual ICollection<DoctorSchedule> DoctorSchedules { get; set; } = new List<DoctorSchedule>();
-
-    public virtual Hospital Hospital { get; set; } = null!;
 
     public virtual ICollection<Doctor> InverseReportsToDoctor { get; set; } = new List<Doctor>();
 

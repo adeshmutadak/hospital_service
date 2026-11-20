@@ -28,16 +28,54 @@ namespace Service
             _config = config;
         }
 
+        public Task<GeneralResponse<LoginResponseDto>> OwnerLogin(LoginRequestDto request)
+        {
+            var ownerMobile = _config["Setup:Owner:Mobile"]?.Trim();
+            var ownerPassword = _config["Setup:Owner:Password"];
+            var login = request.MobileOrEmail.Trim();
+
+            // Compare mobile and password directly with appsettings
+            if (string.IsNullOrWhiteSpace(ownerMobile)
+                || string.IsNullOrWhiteSpace(ownerPassword)
+                || login != ownerMobile
+                || !CryptographicOperations.FixedTimeEquals(
+                       Encoding.UTF8.GetBytes(request.Password),
+                       Encoding.UTF8.GetBytes(ownerPassword)))
+            {
+                return Task.FromResult(new GeneralResponse<LoginResponseDto>
+                {
+                    Success = false,
+                    Message = "Invalid mobile or password",
+                    HttpStatusCode = HttpStatusCode.Unauthorized,
+                    Data = null
+                });
+            }
+
+            var (token, expiresAtUtc) = _securityHelper.GenerateOwnerToken(ownerMobile);
+
+            return Task.FromResult(new GeneralResponse<LoginResponseDto>
+            {
+                Success = true,
+                Message = "Login successful",
+                HttpStatusCode = HttpStatusCode.OK,
+                Data = new LoginResponseDto
+                {
+                    UserId = 0,
+                    HospitalName = _config["Setup:Hospital:Name"],
+                    FullName = _config["Setup:Owner:FullName"] ?? "Owner",
+                    Role = (byte)UserRole.Owner,
+                    RoleName = UserRole.Owner.ToString(),
+                    MustChangePassword = false,
+                    Token = token,
+                    ExpiresAtUtc = expiresAtUtc
+                }
+            });
+        }
         public async Task<GeneralResponse<LoginResponseDto>> LoginUser(LoginRequestDto request)
         {
             var login = request.MobileOrEmail.Trim();
             var user = await _authRepo.GetUserForLoginAsync(login);
 
-            // First login of the Owner: create the Owner from appsettings
-            if (user == null && await TryCreateOwnerFromSettingsAsync(login, request.Password))
-            {
-                user = await _authRepo.GetUserForLoginAsync(login);
-            }
 
             if (user == null || !_securityHelper.VerifyPassword(request.Password, user.PasswordHash))
             {
@@ -73,7 +111,6 @@ namespace Service
                 RoleName = role.ToString(),
                 DoctorId = user.Doctor?.Id,
                 DepartmentId = user.Doctor?.DepartmentId,
-                PatientId = user.PatientUser?.Id,
                 PhotoPath = user.PhotoPath,
                 MustChangePassword = user.MustChangePassword,
                 Token = token,
@@ -125,6 +162,7 @@ namespace Service
             };
         }
 
+
         // Creates the Owner only when no Owner exists yet and the credentials
         // match the Setup:Owner section. Returns true when created.
         private async Task<bool> TryCreateOwnerFromSettingsAsync(string login, string password)
@@ -136,11 +174,7 @@ namespace Service
                 return false;
             if (login != ownerMobile.Trim())
                 return false;
-            if (!CryptographicOperations.FixedTimeEquals(
-                    Encoding.UTF8.GetBytes(password), Encoding.UTF8.GetBytes(defaultPassword)))
-                return false;
-            if (await _authRepo.OwnerExistsAsync())
-                return false;
+           
 
             await _authRepo.AddUserAsync(new User
             {

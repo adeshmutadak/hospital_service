@@ -7,7 +7,6 @@ public partial class Visit
 {
     public long Id { get; set; }
 
-    public long HospitalId { get; set; }
 
     public long PatientId { get; set; }
 
@@ -38,8 +37,6 @@ public partial class Visit
     public virtual Appointment? Appointment { get; set; }
 
     public virtual Doctor Doctor { get; set; } = null!;
-
-    public virtual Hospital Hospital { get; set; } = null!;
 
     public virtual ICollection<MedicalReport> MedicalReports { get; set; } = new List<MedicalReport>();
 

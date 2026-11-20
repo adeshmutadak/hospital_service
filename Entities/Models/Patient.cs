@@ -7,9 +7,7 @@ public partial class Patient
 {
     public long Id { get; set; }
 
-    public long HospitalId { get; set; }
-
-    public long? UserId { get; set; }
+    public long? DoctorId { get; set; }
 
     public string PatientCode { get; set; } = null!;
 
@@ -23,6 +21,12 @@ public partial class Patient
 
     public string? BloodGroup { get; set; }
 
+    public string? PhotoPath { get; set; }
+
+    public string? PasswordHash { get; set; }
+
+    public bool IsPasswordReset { get; set; }
+
     public long CreatedBy { get; set; }
 
     public bool IsDeleted { get; set; }
@@ -35,13 +39,11 @@ public partial class Patient
 
     public virtual User CreatedByNavigation { get; set; } = null!;
 
-    public virtual Hospital Hospital { get; set; } = null!;
+    public virtual Doctor? Doctor { get; set; }
 
     public virtual ICollection<MedicalReport> MedicalReports { get; set; } = new List<MedicalReport>();
 
     public virtual ICollection<PatientDoctorAssignment> PatientDoctorAssignments { get; set; } = new List<PatientDoctorAssignment>();
-
-    public virtual User? User { get; set; }
 
     public virtual ICollection<Visit> Visits { get; set; } = new List<Visit>();
 }

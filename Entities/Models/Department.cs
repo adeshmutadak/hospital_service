@@ -7,7 +7,6 @@ public partial class Department
 {
     public long Id { get; set; }
 
-    public long HospitalId { get; set; }
 
     public string Name { get; set; } = null!;
 
@@ -17,6 +16,7 @@ public partial class Department
 
     public bool IsDeleted { get; set; }
 
+    public string? Code { get; set; }
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
@@ -24,6 +24,4 @@ public partial class Department
     public virtual ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
 
     public virtual Doctor? HeadDoctor { get; set; }
-
-    public virtual Hospital Hospital { get; set; } = null!;
 }

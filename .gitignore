@@ -67,6 +67,7 @@ secrets.json
 # ---------- Uploaded files (photos, reports stored on server) ----------
 uploads/
 **/wwwroot/uploads/
+Common/Photos/
 
 # ---------- OS files ----------
 .DS_Store

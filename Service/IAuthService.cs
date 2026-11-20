@@ -12,5 +12,7 @@ namespace Service
     {
         Task<GeneralResponse<LoginResponseDto>> LoginUser(LoginRequestDto request);
         Task<BaseResponse> ChangePassword(long userId, ChangePasswordRequestDto request);
+        Task<GeneralResponse<LoginResponseDto>> OwnerLogin(LoginRequestDto request);
+
     }
 }

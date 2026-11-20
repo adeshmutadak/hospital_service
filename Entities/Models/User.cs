@@ -8,7 +8,6 @@ public partial class User
 {
     public long Id { get; set; }
 
-    public long? HospitalId { get; set; }
 
     public string FullName { get; set; } = null!;
 
@@ -37,13 +36,10 @@ public partial class User
 
     public virtual Doctor? Doctor { get; set; }
 
-    public virtual Hospital? Hospital { get; set; }
-
     public virtual ICollection<MedicalReport> MedicalReports { get; set; } = new List<MedicalReport>();
 
     public virtual ICollection<Patient> PatientCreatedByNavigations { get; set; } = new List<Patient>();
 
     public virtual ICollection<PatientDoctorAssignment> PatientDoctorAssignments { get; set; } = new List<PatientDoctorAssignment>();
 
-    public virtual Patient? PatientUser { get; set; }
 }

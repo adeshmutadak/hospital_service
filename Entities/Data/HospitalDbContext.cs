@@ -22,8 +22,6 @@ public partial class HospitalDbContext : DbContext
 
     public virtual DbSet<DoctorSchedule> DoctorSchedules { get; set; }
 
-    public virtual DbSet<Hospital> Hospitals { get; set; }
-
     public virtual DbSet<MedicalReport> MedicalReports { get; set; }
 
     public virtual DbSet<Patient> Patients { get; set; }
@@ -50,7 +48,6 @@ public partial class HospitalDbContext : DbContext
 
             entity.HasIndex(e => e.DoctorId, "fk_appt_doctor");
 
-            entity.HasIndex(e => e.HospitalId, "fk_appt_hospital");
 
             entity.HasIndex(e => e.PatientId, "fk_appt_patient");
 
@@ -64,7 +61,6 @@ public partial class HospitalDbContext : DbContext
             entity.Property(e => e.EndAt)
                 .HasColumnType("datetime")
                 .HasColumnName("end_at");
-            entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
             entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.PatientId).HasColumnName("patient_id");
             entity.Property(e => e.Reason)
@@ -91,10 +87,6 @@ public partial class HospitalDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_appt_doctor");
 
-            entity.HasOne(d => d.Hospital).WithMany(p => p.Appointments)
-                .HasForeignKey(d => d.HospitalId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_appt_hospital");
 
             entity.HasOne(d => d.Patient).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.PatientId)
@@ -110,7 +102,6 @@ public partial class HospitalDbContext : DbContext
 
             entity.HasIndex(e => e.DoctorId, "fk_assist_doctor");
 
-            entity.HasIndex(e => e.HospitalId, "fk_assist_hospital");
 
             entity.HasIndex(e => e.AssistantUserId, "fk_assist_user");
 
@@ -121,7 +112,6 @@ public partial class HospitalDbContext : DbContext
                 .HasColumnName("assigned_at");
             entity.Property(e => e.AssistantUserId).HasColumnName("assistant_user_id");
             entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
-            entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
             entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
 
             entity.HasOne(d => d.AssistantUser).WithMany(p => p.AssistantAssignments)
@@ -134,10 +124,6 @@ public partial class HospitalDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_assist_doctor");
 
-            entity.HasOne(d => d.Hospital).WithMany(p => p.AssistantAssignments)
-                .HasForeignKey(d => d.HospitalId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_assist_hospital");
         });
 
         modelBuilder.Entity<Department>(entity =>
@@ -148,15 +134,17 @@ public partial class HospitalDbContext : DbContext
 
             entity.HasIndex(e => e.HeadDoctorId, "fk_departments_head_doctor");
 
-            entity.HasIndex(e => new { e.HospitalId, e.Name }, "uq_departments_hospital_name").IsUnique();
-
+            entity.HasIndex(e => e.Name, "uq_departments_name").IsUnique();
+            entity.HasIndex(e => e.Code, "uq_departments_code").IsUnique();
+            entity.Property(e => e.Code)
+                .HasMaxLength(5)
+                .HasColumnName("code");
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
             entity.Property(e => e.HeadDoctorId).HasColumnName("head_doctor_id");
-            entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
             entity.Property(e => e.IsActive)
                 .IsRequired()
                 .HasDefaultValueSql("'1'")
@@ -174,10 +162,6 @@ public partial class HospitalDbContext : DbContext
                 .HasForeignKey(d => d.HeadDoctorId)
                 .HasConstraintName("fk_departments_head_doctor");
 
-            entity.HasOne(d => d.Hospital).WithMany(p => p.Departments)
-                .HasForeignKey(d => d.HospitalId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_departments_hospital");
         });
 
         modelBuilder.Entity<Doctor>(entity =>
@@ -187,8 +171,10 @@ public partial class HospitalDbContext : DbContext
             entity.ToTable("doctors");
 
             entity.HasIndex(e => e.DepartmentId, "fk_doctors_department");
-
-            entity.HasIndex(e => e.HospitalId, "fk_doctors_hospital");
+            entity.HasIndex(e => e.Code, "uq_doctors_code").IsUnique();
+            entity.Property(e => e.Code)
+                .HasMaxLength(10)
+                .HasColumnName("code");
 
             entity.HasIndex(e => e.ReportsToDoctorId, "fk_doctors_reports_to");
 
@@ -203,7 +189,6 @@ public partial class HospitalDbContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
             entity.Property(e => e.DepartmentId).HasColumnName("department_id");
-            entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
             entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.Qualification)
                 .HasMaxLength(150)
@@ -228,11 +213,6 @@ public partial class HospitalDbContext : DbContext
                 .HasForeignKey(d => d.DepartmentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_doctors_department");
-
-            entity.HasOne(d => d.Hospital).WithMany(p => p.Doctors)
-                .HasForeignKey(d => d.HospitalId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_doctors_hospital");
 
             entity.HasOne(d => d.ReportsToDoctor).WithMany(p => p.InverseReportsToDoctor)
                 .HasForeignKey(d => d.ReportsToDoctorId)
@@ -277,47 +257,13 @@ public partial class HospitalDbContext : DbContext
                 .HasConstraintName("fk_schedules_doctor");
         });
 
-        modelBuilder.Entity<Hospital>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("hospitals");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Address)
-                .HasMaxLength(300)
-                .HasColumnName("address");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("datetime")
-                .HasColumnName("created_at");
-            entity.Property(e => e.Email)
-                .HasMaxLength(150)
-                .HasColumnName("email");
-            entity.Property(e => e.IsActive)
-                .IsRequired()
-                .HasDefaultValueSql("'1'")
-                .HasColumnName("is_active");
-            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
-            entity.Property(e => e.Name)
-                .HasMaxLength(150)
-                .HasColumnName("name");
-            entity.Property(e => e.Phone)
-                .HasMaxLength(15)
-                .HasColumnName("phone");
-            entity.Property(e => e.UpdatedAt)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasColumnType("datetime")
-                .HasColumnName("updated_at");
-        });
+    
 
         modelBuilder.Entity<MedicalReport>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("medical_reports");
-
-            entity.HasIndex(e => e.HospitalId, "fk_reports_hospital");
 
             entity.HasIndex(e => e.PatientId, "fk_reports_patient");
 
@@ -332,7 +278,6 @@ public partial class HospitalDbContext : DbContext
             entity.Property(e => e.FilePath)
                 .HasMaxLength(300)
                 .HasColumnName("file_path");
-            entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
             entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.PatientId).HasColumnName("patient_id");
             entity.Property(e => e.ReportType).HasColumnName("report_type");
@@ -343,10 +288,7 @@ public partial class HospitalDbContext : DbContext
             entity.Property(e => e.UploadedBy).HasColumnName("uploaded_by");
             entity.Property(e => e.VisitId).HasColumnName("visit_id");
 
-            entity.HasOne(d => d.Hospital).WithMany(p => p.MedicalReports)
-                .HasForeignKey(d => d.HospitalId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_reports_hospital");
+       
 
             entity.HasOne(d => d.Patient).WithMany(p => p.MedicalReports)
                 .HasForeignKey(d => d.PatientId)
@@ -371,53 +313,55 @@ public partial class HospitalDbContext : DbContext
 
             entity.HasIndex(e => e.CreatedBy, "fk_patients_created_by");
 
-            entity.HasIndex(e => new { e.HospitalId, e.PatientCode }, "uq_patients_hospital_code").IsUnique();
+            entity.HasIndex(e => e.DoctorId, "fk_patients_doctor");
 
-            entity.HasIndex(e => e.UserId, "uq_patients_user").IsUnique();
+            entity.HasIndex(e => e.PatientCode, "uq_patients_code").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
+            entity.Property(e => e.PatientCode)
+                .HasMaxLength(30)
+                .HasColumnName("patient_code");
+            entity.Property(e => e.FullName)
+                .HasMaxLength(150)
+                .HasColumnName("full_name");
+            entity.Property(e => e.Mobile)
+                .HasMaxLength(15)
+                .HasColumnName("mobile");
+            entity.Property(e => e.Gender).HasColumnName("gender");
+            entity.Property(e => e.DateOfBirth).HasColumnName("date_of_birth");
             entity.Property(e => e.BloodGroup)
                 .HasMaxLength(5)
                 .HasColumnName("blood_group");
+            entity.Property(e => e.PhotoPath)
+                .HasMaxLength(300)
+                .HasColumnName("photo_path");
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(255)
+                .HasColumnName("password_hash");
+            entity.Property(e => e.IsPasswordReset)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("is_password_reset");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
                 .HasColumnName("created_at");
-            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
-            entity.Property(e => e.DateOfBirth).HasColumnName("date_of_birth");
-            entity.Property(e => e.FullName)
-                .HasMaxLength(150)
-                .HasColumnName("full_name");
-            entity.Property(e => e.Gender).HasColumnName("gender");
-            entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
-            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
-            entity.Property(e => e.Mobile)
-                .HasMaxLength(15)
-                .HasColumnName("mobile");
-            entity.Property(e => e.PatientCode)
-                .HasMaxLength(20)
-                .HasColumnName("patient_code");
             entity.Property(e => e.UpdatedAt)
                 .ValueGeneratedOnAddOrUpdate()
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PatientCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_patients_created_by");
 
-            entity.HasOne(d => d.Hospital).WithMany(p => p.Patients)
-                .HasForeignKey(d => d.HospitalId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_patients_hospital");
-
-            entity.HasOne(d => d.User).WithOne(p => p.PatientUser)
-                .HasForeignKey<Patient>(d => d.UserId)
-                .HasConstraintName("fk_patients_user");
+            entity.HasOne(d => d.Doctor).WithMany(p => p.Patients)
+                .HasForeignKey(d => d.DoctorId)
+                .HasConstraintName("fk_patients_doctor");
         });
-
         modelBuilder.Entity<PatientDoctorAssignment>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -466,8 +410,6 @@ public partial class HospitalDbContext : DbContext
 
             entity.ToTable("users");
 
-            entity.HasIndex(e => new { e.HospitalId, e.Mobile }, "uq_users_hospital_mobile").IsUnique();
-
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
@@ -479,7 +421,6 @@ public partial class HospitalDbContext : DbContext
             entity.Property(e => e.FullName)
                 .HasMaxLength(150)
                 .HasColumnName("full_name");
-            entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
             entity.Property(e => e.IsActive)
                 .IsRequired()
                 .HasDefaultValueSql("'1'")
@@ -503,9 +444,7 @@ public partial class HospitalDbContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("updated_at");
 
-            entity.HasOne(d => d.Hospital).WithMany(p => p.Users)
-                .HasForeignKey(d => d.HospitalId)
-                .HasConstraintName("fk_users_hospital");
+            
         });
 
         modelBuilder.Entity<Visit>(entity =>
@@ -517,8 +456,6 @@ public partial class HospitalDbContext : DbContext
             entity.HasIndex(e => e.AppointmentId, "fk_visits_appointment");
 
             entity.HasIndex(e => e.DoctorId, "fk_visits_doctor");
-
-            entity.HasIndex(e => e.HospitalId, "fk_visits_hospital");
 
             entity.HasIndex(e => e.PatientId, "fk_visits_patient");
 
@@ -535,7 +472,6 @@ public partial class HospitalDbContext : DbContext
                 .HasColumnType("text")
                 .HasColumnName("diagnosis");
             entity.Property(e => e.DoctorId).HasColumnName("doctor_id");
-            entity.Property(e => e.HospitalId).HasColumnName("hospital_id");
             entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
             entity.Property(e => e.NextVisitDate).HasColumnName("next_visit_date");
             entity.Property(e => e.Notes)
@@ -566,10 +502,6 @@ public partial class HospitalDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_visits_doctor");
 
-            entity.HasOne(d => d.Hospital).WithMany(p => p.Visits)
-                .HasForeignKey(d => d.HospitalId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_visits_hospital");
 
             entity.HasOne(d => d.Patient).WithMany(p => p.Visits)
                 .HasForeignKey(d => d.PatientId)

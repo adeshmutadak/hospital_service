@@ -7,7 +7,6 @@ public partial class MedicalReport
 {
     public long Id { get; set; }
 
-    public long HospitalId { get; set; }
 
     public long PatientId { get; set; }
 
@@ -24,8 +23,6 @@ public partial class MedicalReport
     public bool IsDeleted { get; set; }
 
     public DateTime UploadedAt { get; set; }
-
-    public virtual Hospital Hospital { get; set; } = null!;
 
     public virtual Patient Patient { get; set; } = null!;
 

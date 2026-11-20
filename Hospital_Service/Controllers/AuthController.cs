@@ -18,6 +18,14 @@ namespace Hospital_Service.Controllers
         }
 
         [AllowAnonymous]
+        [HttpPost("owner-login")]
+        public async Task<ActionResult<GeneralResponse<LoginResponseDto>>> OwnerLogin(LoginRequestDto request)
+        {
+            var response = await _authService.OwnerLogin(request);
+            return StatusCode((int)response.HttpStatusCode, response);
+        }
+
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<GeneralResponse<LoginResponseDto>>> Login(LoginRequestDto request)
         {

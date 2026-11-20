@@ -23,7 +23,6 @@ namespace Repository
             return await _context.Users
                 .AsNoTracking()
                 .Include(u => u.Doctor)
-                .Include(u => u.PatientUser)
                 .FirstOrDefaultAsync(u => (u.Mobile == mobileOrEmail || u.Email == mobileOrEmail)
                                           && !u.IsDeleted
                                           && u.IsActive != false);
@@ -51,5 +50,6 @@ namespace Repository
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+
     }
 }

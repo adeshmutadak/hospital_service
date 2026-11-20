@@ -7,8 +7,6 @@ public partial class Appointment
 {
     public long Id { get; set; }
 
-    public long HospitalId { get; set; }
-
     public long PatientId { get; set; }
 
     public long DoctorId { get; set; }
@@ -34,8 +32,6 @@ public partial class Appointment
     public virtual User? CreatedByNavigation { get; set; }
 
     public virtual Doctor Doctor { get; set; } = null!;
-
-    public virtual Hospital Hospital { get; set; } = null!;
 
     public virtual Patient Patient { get; set; } = null!;
 

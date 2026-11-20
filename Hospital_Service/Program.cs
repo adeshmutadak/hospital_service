@@ -1,4 +1,5 @@
 using System.Text;
+using CommonLayer.PhotoUpload;
 using CommonLayer.SecurityHelper;
 using Hospital_Service.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
 using Service;
+using CommonLayer.PhotoUpload;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthRepo, AuthRepo>();
 builder.Services.AddScoped<ISecurityHelper, SecurityHelper>();
-
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IDoctorRepo, DoctorRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDepartmentRepo, DepartmentRepo>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IPatientRepo, PatientRepo>();
+builder.Services.AddScoped<IFileService, FileService>();
 // Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<HospitalDbContext>(options =>
